@@ -1,7 +1,8 @@
 const puppeteer = require("puppeteer");
+const path = require("path");
 require("dotenv").config();
 
-const scrapeLogic = async (res) => {
+const scrapeLogic = async (url,vin) => {
   const browser = await puppeteer.launch({
     args: [
       "--disable-setuid-sandbox",
@@ -17,32 +18,41 @@ const scrapeLogic = async (res) => {
   try {
     const page = await browser.newPage();
 
-    await page.goto("https://developer.chrome.com/");
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+    });
 
-    // Set screen size
-    await page.setViewport({ width: 1080, height: 1024 });
+    await page.evaluate(() => {
+      const element = document.querySelector(".advantage-dealer-badge-info");
+      if (element) {
+        element.remove();
+      }
+    });
 
-    // Type into search box
-    await page.type(".search-box__input", "automate beyond recorder");
+    await page.evaluate(() => {
+      const element = document.querySelector(
+        ".print-only-report-provided-by-snackbar"
+      );
+      if (element) {
+        element.remove();
+      }
+    });
 
-    // Wait and click on first result
-    const searchResultSelector = ".search-box__link";
-    await page.waitForSelector(searchResultSelector);
-    await page.click(searchResultSelector);
+    await page.emulateMediaType("print");
 
-    // Locate the full title with a unique string
-    const textSelector = await page.waitForSelector(
-      "text/Customize and automate"
-    );
-    const fullTitle = await textSelector.evaluate((el) => el.textContent);
+    const pdfPath = path.join("/tmp", `${vin}.pdf`);
+    await page.pdf({
+      format: "A4",
+      printBackground: true,
+      path: pdfPath,
+    });
 
-    // Print the full title
-    const logStatement = `The title of this blog post is ${fullTitle}`;
-    console.log(logStatement);
-    res.send(logStatement);
+   // await browser.close();
+
+    return "ok";
   } catch (e) {
     console.error(e);
-    res.send(`Something went wrong while running Puppeteer: ${e}`);
+    return "error";
   } finally {
     await browser.close();
   }
