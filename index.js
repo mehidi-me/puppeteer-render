@@ -42,8 +42,9 @@ app.get("/download-pdf/:vin/:auth", async (req, res) => {
     const response = await fetch(url, options);
     const data = await response.json();
 
+    
     if (!data || !data.vhrHtml) {
-      return res.status(400).send("No HTML content found");
+      return res.status(400).send({status: false, message: data?.message});
     }
 
     // Use /tmp directory for storing the HTML file
@@ -51,7 +52,8 @@ app.get("/download-pdf/:vin/:auth", async (req, res) => {
     fs.writeFile(filePath, data.vhrHtml, (err) => {
       if (err) {
         console.error("Error writing file", err);
-        return res.status(500).send("Internal Server Error");
+        return res.status(500).send({status: false, message: "Error writing file. try again!"});
+        
       }
       console.log("HTML file created successfully!");
     });
@@ -63,7 +65,7 @@ app.get("/download-pdf/:vin/:auth", async (req, res) => {
       .send({ file_path: `${fullUrl}/files/${vin}.pdf`, status: true });
   } catch (err) {
     console.error("Error generating PDF:", err);
-    res.status(500).send(err);
+    res.status(500).send({status: false, message: "System Error. Try Again!"});
   }
 });
 
