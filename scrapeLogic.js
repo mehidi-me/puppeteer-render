@@ -29,12 +29,12 @@ const scrapeLogic = async (url, vin) => {
       }
       name = document.querySelector(
         ".sidebar-vehicle-information-year-Make-Model"
-      ).innerHTML;
+      )?.innerHTML;
 
       if (!name) {
         name = document.querySelector(
           ".vehicle-information-year-make-model"
-        ).innerHTML;
+        )?.innerHTML;
       }
     });
 
