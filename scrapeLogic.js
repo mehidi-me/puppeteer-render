@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 const path = require("path");
 require("dotenv").config();
 
-const scrapeLogic = async (url,vin) => {
+const scrapeLogic = async (url, vin) => {
   const browser = await puppeteer.launch({
     args: [
       "--disable-setuid-sandbox",
@@ -17,7 +17,7 @@ const scrapeLogic = async (url,vin) => {
   });
   try {
     const page = await browser.newPage();
-
+    let name = "";
     await page.goto(url, {
       waitUntil: "domcontentloaded",
     });
@@ -26,6 +26,15 @@ const scrapeLogic = async (url,vin) => {
       const element = document.querySelector(".advantage-dealer-badge-info");
       if (element) {
         element.remove();
+      }
+      name = document.querySelector(
+        ".sidebar-vehicle-information-year-Make-Model"
+      ).innerHTML;
+
+      if (!name) {
+        name = document.querySelector(
+          ".vehicle-information-year-make-model"
+        ).innerHTML;
       }
     });
 
@@ -47,9 +56,9 @@ const scrapeLogic = async (url,vin) => {
       path: pdfPath,
     });
 
-   // await browser.close();
+    // await browser.close();
 
-    return "ok";
+    return name;
   } catch (e) {
     console.error(e);
     return "error";

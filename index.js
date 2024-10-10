@@ -58,11 +58,11 @@ app.get("/download-pdf/:vin/:auth", async (req, res) => {
       console.log("HTML file created successfully!");
     });
 
-    await scrapeLogic(`${fullUrl}/files/${vin}.html`, vin);
+   const reName =  await scrapeLogic(`${fullUrl}/files/${vin}.html`, vin);
 
     return res
       .status(200)
-      .send({ file_path: `${fullUrl}/files/${vin}.pdf`, status: true });
+      .send({ file_path: `${fullUrl}/files/${vin}.pdf`, status: true, name: reName });
   } catch (err) {
     console.error("Error generating PDF:", err);
     res.status(500).send({status: false, message: "System Error. Try Again!"});
