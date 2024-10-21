@@ -45,6 +45,12 @@ const scrapeLogic = async (url, vin) => {
       if (element) {
         element.remove();
       }
+      const element2 = document.querySelector(
+        ".report-provided-by"
+      );
+      if (element2) {
+        element2.remove();
+      }
     });
 
     await page.emulateMediaType("print");
